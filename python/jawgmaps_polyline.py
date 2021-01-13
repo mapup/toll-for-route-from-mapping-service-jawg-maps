@@ -43,7 +43,8 @@ response_tollguru= requests.post(Tolls_URL, json=params, headers=headers).json()
 if str(response_tollguru).find('message')==-1:
     print('\n The Rates Are ')
     #extracting rates from Tollguru response is no error
-    print(*response_tollguru['summary']['rates'].items(),end="\n\n")
+    # print(*response_tollguru['summary']['rates'].items(),end="\n\n")
+    print(*response_tollguru['route']['costs'].items(),end="\n\n")
 else:
     raise Exception(response_tollguru['message'])
 
