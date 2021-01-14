@@ -4,7 +4,7 @@
 #### Step 1: Signup/Login
 * Create an account to access [JawgLab](https://www.jawg.io/lab/)
 * go to signup/login link https://www.jawg.io/lab/
-* you will need to agree to MapQuest's Terms of Service https://www.jawg.io/en/terms/
+* you will need to agree to JawgLab's Terms of Service https://www.jawg.io/en/terms/
 
 #### Step 2: Getting api token
 * Once logged in you should see you token at https://www.jawg.io/lab/
