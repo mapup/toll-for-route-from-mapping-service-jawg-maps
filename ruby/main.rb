@@ -4,7 +4,7 @@ require 'json'
 # Source Details in latitude-longitude pair (Dallas, TX - coordinates)
 SOURCE = {longitude: '-96.7970', latitude: '32.7767'}
 # Destination Details in latitude-longitude pair (New York, NY - coordinates)
-DESTINATION = {longitude: '-96.924', latitude: '32.9756' }
+DESTINATION = {longitude: '-74.0060', latitude: '40.7128' }
 
 # GET Request to Jawg for Polyline
 KEY = ENV['JAWG_KEY']
