@@ -27,7 +27,7 @@ With this in place, make a GET request: https://api.jawg.io/routing/route/v1/car
 // Dallas, TX - coordinates
 $source_longitude='-96.79448';
 $source_latitude='32.78165';
-//Adision, TX - coordinates
+//Addison, TX - coordinates
 $destination_longitude='-96.818';
 $destination_latitude='32.95399';
 $key = 'jawmaps_api_key';
