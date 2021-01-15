@@ -57,12 +57,10 @@ if ($err) {
 
 //extracting polyline from the JSON response..
 $data_jawmaps = json_decode($response, true);
-$data_new = $data_jawmaps['routes'];
-$new_data = $data_new['0'];
-$pol_data = $new_data['geometry'];
 
 //polyline..
-$polyline_jawmaps = $pol_data;
+$polyline_jawmaps = $data_jawmaps['routes']['0']['geometry'];
+
 
 ```
 
