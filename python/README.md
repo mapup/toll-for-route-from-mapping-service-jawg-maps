@@ -9,48 +9,33 @@
 #### Step 2: Getting api token
 * Once logged in you should see you token at https://www.jawg.io/lab/
 
-
 With this in place, make a GET request: https://api.jawg.io/routing/route/v1/car/${source.longitude},${source.latitude};${destination.longitude},${destination.latitude}?overview=full&access-token=${key}
 
+#### Step 3: Getting geocodes from Jawgmaps
+* Use the following code to get geocodes for a location using Jawgmaps' API
+```python
+def get_geocodes_from_jawgmaps(address):
+    url = f"https://api.jawg.io/places/v1/search?text={address}&access-token={token}&size=1"
+    longitude,latitude=requests.get(url).json()['features'][0]['geometry']['coordinates']
+    return(longitude,latitude)
+```
+#### Step 4: Extracting Polyline from Jawgmaps
 ### Note:
-* we will be sending `overview` as `full`.
+* We will be sending `overview` as `full`.
 * Setting overview as full sends us complete route. Default value for `overview` is `simplified`, which is an approximate (smoothed) path of the resulting directions.
 * Jawg accepts source and destination, as semicolon seperated
   `${longitude},{latitude}`
 
-
 ```python
-#Importing modules
-import json
-import requests
-import os 
-import polyline as Poly
-
-'''Fetching Polyline from Esri-Arcgis-Maps'''
-#API key for jawgmaps
-#token=os.environ.get('jawgmaps_api_key')
-token=os.environ.get('jawgmaps_api')
-#Source and Destination Coordinates
-#source
-source_longitude='-0.429371'
-source_latitude='47.521557'
-#destination
-destination_longitude='0.109369'
-destination_latitude='48.465013'
-
-#Query jawgmaps with Key and Source-Destination coordinates
-url='https://api.jawg.io/routing/route/v1/car/{a},{b};{c},{d}?overview=full&access-token={e}'.format(a=source_longitude,b=source_latitude,c=destination_longitude,d=destination_latitude,e=token)
-
-#converting the response to json
-response=requests.get(url).json()
-
-#checking for errors in response-to do
-
-#The response is a dict where Polyline is inside first element named "routes" , first element is a list , go to 1st element there
-#you will find a key named "geometry" which is essentially the Polyline''' 
-#Extracting polyline
-polyline=response["routes"][0]['geometry']
-
+def get_polyline_from_jawgmap(source_longitude,source_latitude,destination_longitude,destination_latitude):
+    #Query jawgmaps with Key and Source-Destination coordinates
+    url='https://api.jawg.io/routing/route/v1/car/{a},{b};{c},{d}?overview=full&access-token={e}'.format(a=source_longitude,b=source_latitude,c=destination_longitude,d=destination_latitude,e=token)
+    #converting the response to json
+    response=requests.get(url).json()
+    #Extracting polyline
+    polyline_from_jawgmaps=response["routes"][0]['geometry']
+    #print(polyline)
+    return(polyline_from_jawgmaps)
 ```
 
 Note:
@@ -59,45 +44,42 @@ We extracted the polyline for a route from Jawgmaps
 
 We need to send this route polyline to TollGuru API to receive toll information
 
+#### Step 5: Getting toll rates from TollGuru API
 ## [TollGuru API](https://tollguru.com/developers/docs/)
 
 ### Get key to access TollGuru polyline API
 * create a dev account to receive a free key from TollGuru https://tollguru.com/developers/get-api-key
 * suggest adding `vehicleType` parameter. Tolls for cars are different than trucks and therefore if `vehicleType` is not specified, may not receive accurate tolls. For example, tolls are generally higher for trucks than cars. If `vehicleType` is not specified, by default tolls are returned for 2-axle cars. 
 * Similarly, `departure_time` is important for locations where tolls change based on time-of-the-day.
-
-the last line can be changed to following
+* Call the following function to fetch rates from TollGuru
 
 ```python
-
-'''Calling Tollguru API'''
-#API key for Tollguru
-Tolls_Key = os.environ.get('tollguru_api')
-#Tollguru querry url
-Tolls_URL = 'https://dev.tollguru.com/v1/calc/route'
-#Tollguru resquest parameters
-headers = {
-            'Content-type': 'application/json',
-            'x-api-key': Tolls_Key
-          }
-params = {
-            'source': "jawgmaps",
-            'polyline': polyline ,                            
-            'vehicleType': '2AxlesAuto',               
-            'departure_time' : "2021-01-05T09:46:08Z"   
-        }
-
-#Requesting Tollguru with parameters
-response_tollguru= requests.post(Tolls_URL, json=params, headers=headers).json()
-
-#checking for errors or printing rates
-if str(response_tollguru).find('message')==-1:
-    print('\n The Rates Are ')
-    #extracting rates from Tollguru response is no error
-    print(*response_tollguru['route']['costs'].items(),end="\n\n")
-else:
-    raise Exception(response_tollguru['message'])
-
+def get_rates_from_tollguru(polyline):
+    #Tollguru querry url
+    Tolls_URL = 'https://dev.tollguru.com/v1/calc/route'
+    #Tollguru resquest parameters
+    headers = {
+                'Content-type': 'application/json',
+                'x-api-key': Tolls_Key
+                }
+    params = {
+                 #Explore https://tollguru.com/developers/docs/ to get best of all the parameter that tollguru has to offer 
+                'source': "jawgmaps",
+                'polyline': polyline ,                      #this is polyline that we fetched from the mapping service      
+                'vehicleType': '2AxlesAuto',                #'''Visit https://tollguru.com/developers/docs/#vehicle-types to know more options'''
+                'departure_time' : "2021-01-05T09:46:08Z"   #'''Visit https://en.wikipedia.org/wiki/Unix_time to know the time format'''
+                }
+    #Requesting Tollguru with parameters
+    response_tollguru= requests.post(Tolls_URL, json=params, headers=headers).json()
+    #checking for errors or printing rates
+    if str(response_tollguru).find('message')==-1:
+        #print('\n The Rates Are ')
+        #extracting rates from Tollguru response is no error
+        # print(*response_tollguru['summary']['rates'].items(),end="\n\n")
+        #print(*response_tollguru['route']['costs'].items(),end="\n\n")
+        return(response_tollguru['route']['costs'])
+    else:
+        raise Exception(response_tollguru['message'])
 ```
 
 The working code can be found in jawgmaps_polyline.py file.
