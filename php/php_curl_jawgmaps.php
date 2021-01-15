@@ -5,7 +5,7 @@
 // Dallas, TX - coordinates
 $source_longitude='-96.79448';
 $source_latitude='32.78165';
-//Adision, TX - coordinates
+//Addison, TX - coordinates
 $destination_longitude='-96.818';
 $destination_latitude='32.95399';
 $key = 'jawmaps_api_key';
@@ -35,12 +35,9 @@ if ($err) {
 
 //extracting polyline from the JSON response..
 $data_jawmaps = json_decode($response, true);
-$data_new = $data_jawmaps['routes'];
-$new_data = $data_new['0'];
-$pol_data = $new_data['geometry'];
 
 //polyline..
-$polyline_jawmaps = $pol_data;
+$polyline_jawmaps = $data_jawmaps['routes']['0']['geometry'];
 
 
 //using tollguru API..
@@ -87,7 +84,6 @@ if ($err) {
 }
 
 //response from tollguru..
-var_dump(json_decode($response, true));
-// $data = var_dump(json_decode($response, true));
-//print_r($data);
+$data = var_dump(json_decode($response, true));
+print_r($data);
 ?>
