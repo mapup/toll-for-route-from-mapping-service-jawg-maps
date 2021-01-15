@@ -35,12 +35,9 @@ if ($err) {
 
 //extracting polyline from the JSON response..
 $data_jawmaps = json_decode($response, true);
-$data_new = $data_jawmaps['routes'];
-$new_data = $data_new['0'];
-$pol_data = $new_data['geometry'];
 
 //polyline..
-$polyline_jawmaps = $pol_data;
+$polyline_jawmaps = $data_jawmaps['routes']['0']['geometry'];
 
 
 //using tollguru API..
@@ -87,7 +84,6 @@ if ($err) {
 }
 
 //response from tollguru..
-var_dump(json_decode($response, true));
-// $data = var_dump(json_decode($response, true));
-//print_r($data);
+$data = var_dump(json_decode($response, true));
+print_r($data);
 ?>
