@@ -17,16 +17,27 @@ With this in place, make a GET request: https://api.jawg.io/routing/route/v1/car
 * Setting overview as full sends us complete route. Default value for `overview` is `simplified`, which is an approximate (smoothed) path of the resulting directions.
 * Jawg accepts source and destination, as semicolon seperated
   `{:longitude,:latitude}`
+* To convert source string to lat-long pair we make GET request to JAWG places API. We set size = 1 to limit our search to first result
 
 
 ```ruby
 require 'HTTParty'
 require 'json'
 
-# Source Details in latitude-longitude pair (Dallas, TX - coordinates)
-SOURCE = {longitude: '-96.7970', latitude: '32.7767'}
-# Destination Details in latitude-longitude pair (New York, NY - coordinates)
-DESTINATION = {longitude: '-96.924', latitude: '32.9756' }
+KEY = ENV['JAWG_KEY']
+
+def get_coordinates_hash(location)
+    #GET Request to JAWG places API
+    geocoding_url = "https://api.jawg.io/places/v1/search?text=#{location}&access-token=#{KEY}&size=1"
+    geocoding_resp = JSON.parse(HTTParty.get(geocoding_url).body)
+    coord_parsed = (geocoding_resp['features'].pop)["geometry"]["coordinates"]
+    return {"longitude" => coord_parsed[0], "latitude" => coord_parsed[1]}
+end
+
+# Source Details using JAWG geocoding API 
+SOURCE = get_coordinates_hash("Dallax ,TX")
+# Destination Details using JAWG geocoding API 
+DESTINATION = get_coordinates_hash("New York, NY")
 
 # GET Request to Jawg for Polyline
 KEY = "g1BcsOQSe115CeqL9z7x3SOsf1zXZli44lyYgXZj0zP6zuYDf4IgB3enzXXEfIB4"

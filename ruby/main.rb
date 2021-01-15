@@ -1,14 +1,22 @@
 require 'HTTParty'
 require 'json'
 
-# Source Details in latitude-longitude pair (Dallas, TX - coordinates)
-SOURCE = {longitude: '-96.7970', latitude: '32.7767'}
-# Destination Details in latitude-longitude pair (New York, NY - coordinates)
-DESTINATION = {longitude: '-74.0060', latitude: '40.7128' }
+KEY = ENV['JAWG_KEY']
+
+def get_coordinates_hash(location)
+    geocoding_url = "https://api.jawg.io/places/v1/search?text=#{location}&access-token=#{KEY}&size=1"
+    geocoding_resp = JSON.parse(HTTParty.get(geocoding_url).body)
+    coord_parsed = (geocoding_resp['features'].pop)["geometry"]["coordinates"]
+    return {"longitude" => coord_parsed[0], "latitude" => coord_parsed[1]}
+end
+
+# Source Details using JAWG geocoding API 
+SOURCE = get_coordinates_hash("Dallax ,TX")
+# Destination Details using JAWG geocoding API 
+DESTINATION = get_coordinates_hash("New York, NY")
 
 # GET Request to Jawg for Polyline
-KEY = ENV['JAWG_KEY']
-JAWG_URL = "https://api.jawg.io/routing/route/v1/car/#{SOURCE[:longitude]},#{SOURCE[:latitude]};#{DESTINATION[:longitude]},#{DESTINATION[:latitude]}?overview=full&access-token=#{KEY}"
+JAWG_URL = "https://api.jawg.io/routing/route/v1/car/#{SOURCE["longitude"]},#{SOURCE["latitude"]};#{DESTINATION["longitude"]},#{DESTINATION["latitude"]}?overview=full&access-token=#{KEY}"
 RESPONSE = HTTParty.get(JAWG_URL).body
 json_parsed = JSON.parse(RESPONSE)
 
