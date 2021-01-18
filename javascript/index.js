@@ -1,7 +1,8 @@
 const request = require("request");
+const polyline = require("polyline");
 
-// Token from mapbox
-const token = process.env.MAPBOX_TOKEN;
+// REST API key from Jawg maps
+const key = process.env.JAWG_KEY
 const tollguruKey = process.env.TOLLGURU_KEY;
 
 // Dallas, TX
@@ -16,23 +17,33 @@ const destination = {
     latitude: '40.7128'
 };
 
-const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${source.longitude},${source.latitude};${destination.longitude},${destination.latitude}?geometries=polyline&access_token=${token}&overview=full`
+
+const url = `https://api.jawg.io/routing/route/v1/car/${source.longitude},${source.latitude};${destination.longitude},${destination.latitude}?overview=full&access-token=${key}`;
+
 
 const head = arr => arr[0];
-// JSON path "$..geometry"
-const getGeometry = body => body.routes.map(x => x.geometry);
-const getPolyline = body => head(getGeometry(JSON.parse(body)));
+const flatten = (arr, x) => arr.concat(x);
+
+// JSON path "$..shapePoints"
+const getPoints = body => head(body.routes.map(route => route.geometry))
+
+const getPolyline = body => getPoints(JSON.parse(body));
 
 const getRoute = (cb) => request.get(url, cb);
 
-//const handleRoute = (e, r, body) => console.log(getPolyline(body));
-//getRoute(handleRoute);
+//const handleRoute = (e, r, body) => console.log(getPolyline(body))
+
+//getRoute(handleRoute)
+//return;
 
 const tollguruUrl = 'https://dev.tollguru.com/v1/calc/route';
 
 const handleRoute = (e, r, body) =>  {
-  console.log(body)
+
+  console.log(body);
   const _polyline = getPolyline(body);
+  console.log(_polyline);
+
   request.post(
     {
       url: tollguruUrl,
@@ -40,10 +51,7 @@ const handleRoute = (e, r, body) =>  {
         'content-type': 'application/json',
         'x-api-key': tollguruKey
       },
-      body: JSON.stringify({
-        source: "mapbox",
-        polyline: _polyline,
-      })
+      body: JSON.stringify({ source: "jawgmaps", polyline: _polyline })
     },
     (e, r, body) => {
       console.log(e);
