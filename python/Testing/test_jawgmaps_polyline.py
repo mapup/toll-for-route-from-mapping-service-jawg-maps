@@ -50,21 +50,51 @@ def get_rates_from_tollguru(polyline):
     else:
         raise Exception(response_tollguru['message'])
 
-'''Program Start'''
-#Step 1 :Get geocodes for source and destination from Jawgmaps
-source_longitude,source_latitude=get_geocodes_from_jawgmaps('Dallas, TX')
-destination_longitude,destination_latitude=get_geocodes_from_jawgmaps('Newyork, NY')
+'''Testing'''
+#Importing Functions
+from csv import reader,writer
+import time
+temp_list=[]
+with open('testCases.csv','r') as f:
+    csv_reader=reader(f)
+    for count,i in enumerate(csv_reader):
+        #if count>2:
+        #   break
+        if count==0:
+            i.extend(("Input_polyline","Tollguru_Tag_Cost","Tollguru_Cash_Cost","Tollguru_QueryTime_In_Sec"))
+        else:
+            try:
+                source_longitude,source_latitude=get_geocodes_from_jawgmaps(i[1])
+                destination_longitude,destination_latitude=get_geocodes_from_jawgmaps(i[2])
+                polyline=get_polyline_from_jawgmap(source_longitude,source_latitude,destination_longitude,destination_latitude)
+                i.append(polyline)
+            except:
+                i.append("Routing Error") 
+            
+            start=time.time()
+            try:
+                rates=get_rates_from_tollguru(polyline)
+            except:
+                i.append(False)
+            time_taken=(time.time()-start)
+            if rates=={}:
+                i.append((None,None))
+            else:
+                try:
+                    tag=rates['tag']
+                except:
+                    tag=None
+                try:
+                    cash=rates['cash']
+                except :
+                    cash=None
+                i.extend((tag,cash))
+            i.append(time_taken)
+        #print(f"{len(i)}   {i}\n")
+        temp_list.append(i)
+        #time.sleep(3)
 
-#Step 2 : Get polyline from Jawgmasp
-polyline_from_jawgmaps=get_polyline_from_jawgmap(source_longitude,source_latitude,destination_longitude,destination_latitude)
+with open('testCases_result.csv','w') as f:
+    writer(f).writerows(temp_list)
 
-#Step 3 : Get toll rates from tollguru
-rates_from_tollguru=get_rates_from_tollguru(polyline_from_jawgmaps)
-
-#Print the rates of all the available modes of payment
-if rates_from_tollguru=={}:
-    print("The route doesn't have tolls")
-else:
-    print(f"The rates are \n {rates_from_tollguru}")
-
-'''Program Ends'''
+'''Testing Ends'''
