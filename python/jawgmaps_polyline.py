@@ -66,4 +66,7 @@ polyline_from_jawgmaps=get_polyline_from_jawgmap(source_longitude,source_latitud
 rates_from_tollguru=get_rates_from_tollguru(polyline_from_jawgmaps)
 
 #Print the rates of all the available modes of payment
-print(f"The rates are \n {rates_from_tollguru}")
+if rates_from_tollguru=={}:
+    print("The route doesn't have tolls")
+else:
+    print(f"The rates are \n {rates_from_tollguru}")
