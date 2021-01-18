@@ -14,6 +14,13 @@ With this in place, make a GET request: https://api.jawg.io/routing/route/v1/car
 #### Step 3: Getting geocodes from Jawgmaps
 * Use the following code to get geocodes for a location using Jawgmaps' API
 ```python
+import json
+import requests
+import os 
+
+#API key for jawgmaps
+token=os.environ.get('JAWGMAPS_API')
+
 def get_geocodes_from_jawgmaps(address):
     url = f"https://api.jawg.io/places/v1/search?text={address}&access-token={token}&size=1"
     longitude,latitude=requests.get(url).json()['features'][0]['geometry']['coordinates']
@@ -27,6 +34,14 @@ def get_geocodes_from_jawgmaps(address):
   `${longitude},{latitude}`
 
 ```python
+import json
+import requests
+import os 
+import polyline as poly
+
+#API key for jawgmaps
+token=os.environ.get('JAWGMAPS_API')
+
 def get_polyline_from_jawgmap(source_longitude,source_latitude,destination_longitude,destination_latitude):
     #Query jawgmaps with Key and Source-Destination coordinates
     url='https://api.jawg.io/routing/route/v1/car/{a},{b};{c},{d}?overview=full&access-token={e}'.format(a=source_longitude,b=source_latitude,c=destination_longitude,d=destination_latitude,e=token)
@@ -54,6 +69,13 @@ We need to send this route polyline to TollGuru API to receive toll information
 * Call the following function to fetch rates from TollGuru
 
 ```python
+import json
+import requests
+import os 
+
+#API key for Tollguru
+Tolls_Key = os.environ.get('TOLLGURU_API_KEY')
+
 def get_rates_from_tollguru(polyline):
     #Tollguru querry url
     Tolls_URL = 'https://dev.tollguru.com/v1/calc/route'

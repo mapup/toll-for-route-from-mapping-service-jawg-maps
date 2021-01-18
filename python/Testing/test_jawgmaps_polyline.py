@@ -50,21 +50,38 @@ def get_rates_from_tollguru(polyline):
     else:
         raise Exception(response_tollguru['message'])
 
-'''Program Start'''
-#Step 1 :Get geocodes for source and destination from Jawgmaps
-source_longitude,source_latitude=get_geocodes_from_jawgmaps('Dallas, TX')
-destination_longitude,destination_latitude=get_geocodes_from_jawgmaps('Newyork, NY')
+'''Testing'''
+#Importing Functions
+from csv import reader,writer
+temp_list=[]
+with open(r'G:\Shared drives\a_00_Common\00_Personal\Pavel_Chowdhury\Python_For_Spyder\TollGuru_Api\Jawgmaps\Testing\testCases.csv','r') as f:
+    csv_reader=reader(f)
+    for count,i in enumerate(csv_reader):
+        #if count>2:
+        #  break
+        if count==0:
+            i.extend(("Polyline","TollGuru_Rates"))
+        else:
+            try:
+                source_longitude,source_latitude=get_geocodes_from_jawgmaps(i[1])
+                destination_longitude,destination_latitude=get_geocodes_from_jawgmaps(i[2])
+                polyline=get_polyline_from_jawgmap(source_longitude,source_latitude,destination_longitude,destination_latitude)
+                i.append(polyline)
+            except:
+                i.append("Routing Error") 
+            
+            try:
+                rates=get_rates_from_tollguru(polyline)
+            except:
+                i.append(False)
+            if rates=={}:
+                i.append("NO_TOLL")
+            else:
+                i.append(rates['tag'])
+        #print(f"{len(i)}   {i}\n")
+        temp_list.append(i)
 
-#Step 2 : Get polyline from Jawgmasp
-polyline_from_jawgmaps=get_polyline_from_jawgmap(source_longitude,source_latitude,destination_longitude,destination_latitude)
+with open(r'G:\Shared drives\a_00_Common\00_Personal\Pavel_Chowdhury\Python_For_Spyder\TollGuru_Api\Jawgmaps\Testing\testCases_re.csv','w') as f:
+    writer(f).writerows(temp_list)
 
-#Step 3 : Get toll rates from tollguru
-rates_from_tollguru=get_rates_from_tollguru(polyline_from_jawgmaps)
-
-#Print the rates of all the available modes of payment
-if rates_from_tollguru=={}:
-    print("The route doesn't have tolls")
-else:
-    print(f"The rates are \n {rates_from_tollguru}")
-
-'''Program Ends'''
+'''Testing Ends'''
