@@ -44,11 +44,6 @@ public static string get_Response(string source_latitude,string source_longitude
             return(polyline);
             
         }
-# Source Details using JAWG geocoding API 
-SOURCE = get_coordinates_hash("Dallax ,TX")
-# Destination Details using JAWG geocoding API 
-DESTINATION = get_coordinates_hash("New York, NY")
-
 # GET Request to Jawg for Polyline
 public static string get_Response(string source_latitude,string source_longitude, string destination_latitude, string destination_longitude){
             string api_key="";
