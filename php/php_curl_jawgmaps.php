@@ -1,16 +1,22 @@
 <?php
 //using jawmaps API
 
-//Source and Destination Coordinates..
+$JAWG_API_KEY = getenv('JAWG_API_KEY');
+$JAWG_API_URL = "https://api.jawg.io/routing/route/v1/car";
+
+$TOLLGURU_API_KEY = getenv('TOLLGURU_API_KEY');
+$TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2";
+$POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service";
+
 // Dallas, TX - coordinates
 $source_longitude='-96.79448';
 $source_latitude='32.78165';
-//Addison, TX - coordinates
-$destination_longitude='-96.818';
-$destination_latitude='32.95399';
-$key = 'jawmaps_api_key';
 
-$url = 'https://api.jawg.io/routing/route/v1/car/'.$source_longitude.','.$source_latitude.';'.$destination_longitude.','.$destination_latitude.'?overview=full&access-token='.$key.'';
+// New York, NY - coordinates
+$destination_longitude='-74.0060';
+$destination_latitude='40.7128';
+
+$url = $JAWG_API_URL.'/'.$source_longitude.','.$source_latitude.';'.$destination_longitude.','.$destination_latitude.'?overview=full&access-token='.$JAWG_API_KEY.'';
 
 //connection..
 $jawmaps = curl_init();
@@ -48,7 +54,7 @@ curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
 
 $postdata = array(
-	"source" => "gmaps",
+	"source" => "jawgmaps",
 	"polyline" => $polyline_jawmaps
 );
 
@@ -56,20 +62,20 @@ $postdata = array(
 $encode_postData = json_encode($postdata);
 
 curl_setopt_array($curl, array(
-CURLOPT_URL => "https://dev.tollguru.com/v1/calc/route",
-CURLOPT_RETURNTRANSFER => true,
-CURLOPT_ENCODING => "",
-CURLOPT_MAXREDIRS => 10,
-CURLOPT_TIMEOUT => 30,
-CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_URL => $TOLLGURU_API_URL . "/" . $POLYLINE_ENDPOINT,
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
 
 
-//sending jawmaps polyline to tollguru
-CURLOPT_POSTFIELDS => $encode_postData,
-CURLOPT_HTTPHEADER => array(
-				      "content-type: application/json",
-				      "x-api-key: tollguru_api_key"),
+  //sending jawmaps polyline to tollguru
+  CURLOPT_POSTFIELDS => $encode_postData,
+  CURLOPT_HTTPHEADER => array(
+    "content-type: application/json",
+    "x-api-key: " . $TOLLGURU_API_KEY),
 ));
 
 $response = curl_exec($curl);

@@ -2,12 +2,18 @@ require 'HTTParty'
 require 'json'
 require 'cgi'
 
-$key = ENV['JAWG_KEY']
+JAWG_API_KEY = ENV["JAWG_API_KEY"]
+JAWG_API_URL = "https://api.jawg.io/routing/route/v1/car"
+JAWG_GEOCODE_API_URL = "https://api.jawg.io/places/v1/search"
+
+TOLLGURU_API_KEY = ENV["TOLLGURU_API_KEY"]
+TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2"
+POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service"
 
 def get_toll_rate(source,destination)
 
     def get_coordinates_hash(location)
-        geocoding_url = "https://api.jawg.io/places/v1/search?text=#{CGI::escape(location)}&access-token=#{$key}&size=1"
+        geocoding_url = "#{JAWG_GEOCODE_API_URL}?text=#{CGI::escape(location)}&access-token=#{JAWG_API_KEY}&size=1"
         geocoding_resp = HTTParty.get(geocoding_url)
         begin
             coord_parsed = (JSON.parse(geocoding_resp.body)['features'].pop)["geometry"]["coordinates"]
@@ -25,7 +31,7 @@ def get_toll_rate(source,destination)
     destination = get_coordinates_hash(destination)
     sleep 2
     # GET Request to Jawg for Polyline
-    jawg_url = "https://api.jawg.io/routing/route/v1/car/#{source["longitude"]},#{source["latitude"]};#{destination["longitude"]},#{destination["latitude"]}?overview=full&access-token=#{$key}"
+    jawg_url = "#{JAWG_API_URL}/#{source["longitude"]},#{source["latitude"]};#{destination["longitude"]},#{destination["latitude"]}?overview=full&access-token=#{JAWG_API_KEY}"
     response = HTTParty.get(jawg_url)
     begin
         if response.response.code == '200'
@@ -40,9 +46,8 @@ def get_toll_rate(source,destination)
     end
 
     # Sending POST request to TollGuru
-    tollguru_url = 'https://dev.tollguru.com/v1/calc/route'
-    tollguru_key = ENV['TOLLGURU_KEY']
-    headers = {'content-type' => 'application/json', 'x-api-key' => tollguru_key}
+    tollguru_url = "#{TOLLGURU_API_URL}/#{POLYLINE_ENDPOINT}"
+    headers = {'content-type' => 'application/json', 'x-api-key' => TOLLGURU_API_KEY}
     body = {'source' => "jawg", 'polyline' => jawg_polyline, 'vehicleType' => "2AxlesAuto", 'departure_time' => "2021-01-05T09:46:08Z"}
     tollguru_response = HTTParty.post(tollguru_url,:body => body.to_json, :headers => headers, :timeout => 200)
     begin
