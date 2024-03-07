@@ -1,6 +1,6 @@
 <?php
 function getCord($address){
-$key = 'jawgmaps_api_key';
+$key = getenv('JAWG_API_KEY');
 
 $url = 'https://api.jawg.io/places/v1/search?text='.urlencode($address).'&access-token='.$key.'&size=1';
 

@@ -1,12 +1,22 @@
 <?php
-//using jawmaps API
 
+// JawMaps API
 $JAWG_API_KEY = getenv('JAWG_API_KEY');
 $JAWG_API_URL = "https://api.jawg.io/routing/route/v1/car";
 
+// TollGuru API
 $TOLLGURU_API_KEY = getenv('TOLLGURU_API_KEY');
 $TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2";
 $POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service";
+
+// Explore https://tollguru.com/toll-api-docs to get the best of all the parameters that Tollguru has to offer
+$request_parameters = array(
+  "vehicle" => array(
+      "type" => "2AxlesTruck"
+  ),
+  // Visit https://en.wikipedia.org/wiki/Unix_time to know the time format
+  "departure_time" => "2021-01-05T09:46:08Z"
+);
 
 //Source and Destination Coordinates..
 function getPolyline($source_longitude,$source_latitude,$destination_longitude,$destination_latitude){
@@ -62,11 +72,11 @@ $curl = curl_init();
 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
-
 $postdata = array(
-	"source" => "jawgmaps",
-	"polyline" => $polyline_jawmaps
+  "source" => "jawgmaps",
+  "polyline" => $polyline_jawmaps
 );
+$postdata = array_merge($postdata, $request_parameters);
 
 //json encoding source and polyline to send as postfields..
 $encode_postData = json_encode($postdata);
@@ -126,3 +136,4 @@ echo "\n";
 echo "**************************************************************************\n";
 }
 ?>
+  
