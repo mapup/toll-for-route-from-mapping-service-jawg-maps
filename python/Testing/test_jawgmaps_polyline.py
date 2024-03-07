@@ -12,9 +12,16 @@ TOLLGURU_API_KEY = os.environ.get("TOLLGURU_API_KEY")
 TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2"
 POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service"
 
-"""Fetching Geocodes from Jawgmaps"""
+# Explore https://tollguru.com/toll-api-docs to get best of all the parameter that tollguru has to offer
+request_parameters = {
+    "vehicle": {
+        "type": "2AxlesAuto",
+    },
+    # Visit https://en.wikipedia.org/wiki/Unix_time to know the time format
+    "departure_time": "2021-01-05T09:46:08Z",
+}
 
-
+# Fetching Geocodes from Jawgmaps
 def get_geocodes_from_jawgmaps(address):
     url = f"{JAWG_GEOCODE_API_URL}?text={address}&access-token={JAWG_API_KEY}&size=1"
     longitude, latitude = requests.get(url).json()["features"][0]["geometry"][
@@ -23,9 +30,7 @@ def get_geocodes_from_jawgmaps(address):
     return (longitude, latitude)
 
 
-"""Extracting polyline from Jawgmap"""
-
-
+# Extracting polyline from Jawgmap
 def get_polyline_from_jawgmap(
     source_longitude, source_latitude, destination_longitude, destination_latitude
 ):
@@ -45,10 +50,7 @@ def get_polyline_from_jawgmap(
     # print(polyline)
     return polyline_from_jawgmaps
 
-
-"""Calling Tollguru API"""
-
-
+# Calling Tollguru API
 def get_rates_from_tollguru(polyline):
     # Tollguru querry url
     Tolls_URL = f"{TOLLGURU_API_URL}/{POLYLINE_ENDPOINT}"
@@ -58,8 +60,7 @@ def get_rates_from_tollguru(polyline):
         # Explore https://tollguru.com/developers/docs/ to get best of all the parameter that tollguru has to offer
         "source": "jawgmaps",
         "polyline": polyline,  # this is polyline that we fetched from the mapping service
-        "vehicleType": "2AxlesAuto",  #'''Visit https://tollguru.com/developers/docs/#vehicle-types to know more options'''
-        "departure_time": "2021-01-05T09:46:08Z",  #'''Visit https://en.wikipedia.org/wiki/Unix_time to know the time format'''
+        **request_parameters,
     }
     # Requesting Tollguru with parameters
     response_tollguru = requests.post(Tolls_URL, json=params, headers=headers).json()
