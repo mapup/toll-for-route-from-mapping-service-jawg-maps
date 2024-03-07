@@ -14,9 +14,9 @@ namespace JawgLab
         public const string TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2";
         public const string POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service";
 
-        // Dallas, TX
-        public const string source_longitude = "-96.7970";
-        public const string source_latitude = "32.7767";
+        // Philadelphia, PA
+        public const string source_longitude = "-75.1652";
+        public const string source_latitude = "39.9526";
 
         // New York, NY
         public const string destination_longitude = "-74.0060";
