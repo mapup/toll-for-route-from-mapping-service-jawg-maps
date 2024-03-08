@@ -65,7 +65,6 @@ def get_polyline_from_jawgmap(
     # print(polyline)
     return polyline_from_jawgmaps
 
-
 # Calling Tollguru API
 def get_rates_from_tollguru(polyline):
     # Tollguru querry url
@@ -85,7 +84,6 @@ def get_rates_from_tollguru(polyline):
         return response_tollguru["route"]["costs"]
     else:
         raise Exception(response_tollguru["message"])
-
 
 """Program Start"""
 # Step 1 :Get geocodes for source and destination from Jawgmaps
