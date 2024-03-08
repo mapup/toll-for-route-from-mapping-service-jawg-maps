@@ -24,13 +24,26 @@ request_parameters = {
     "departure_time": "2021-01-05T09:46:08Z",
 }
 
-# Fetching Geocodes from Jawgmaps
 def get_geocodes_from_jawgmaps(address):
-    url = f"{JAWG_GEOCODE_API_URL}?text={address}&access-token={JAWG_API_KEY}&size=1"
-    longitude, latitude = requests.get(url).json()["features"][0]["geometry"][
-        "coordinates"
-    ]
-    return (longitude, latitude)
+    try:
+        url = f"{JAWG_GEOCODE_API_URL}?text={address}&access-token={JAWG_API_KEY}&size=1"
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad response status
+
+        data = response.json()
+        # Check if the response contains 'features' key and it's not empty
+        if "features" in data and data["features"]:
+            longitude, latitude = data["features"][0]["geometry"]["coordinates"]
+            return longitude, latitude
+        else:
+            print("No geocodes found for the given address.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while fetching geocodes: {e}")
+        return None
+    except (KeyError, IndexError) as e:
+        print(f"Error processing API response: {e}")
+        return None
 
 # Extracting polyline from Jawgmap
 def get_polyline_from_jawgmap(
@@ -56,7 +69,7 @@ def get_polyline_from_jawgmap(
 # Calling Tollguru API
 def get_rates_from_tollguru(polyline):
     # Tollguru querry url
-    Tolls_URL = f"{TOLLGURU_API_URL}/${POLYLINE_ENDPOINT}"
+    Tolls_URL = f"{TOLLGURU_API_URL}/{POLYLINE_ENDPOINT}"
     # Tollguru resquest parameters
     headers = {"Content-type": "application/json", "x-api-key": TOLLGURU_API_KEY}
     params = {
